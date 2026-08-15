@@ -14,15 +14,5 @@
     "mcp",
     "memory"
   ],
-  "logo": "assets/logo.svg",
-  "variables": {
-    "type": "object",
-    "properties": {
-      "NESSIE_API_KEY": {
-        "type": "string",
-        "title": "Nessie API key",
-        "description": "From Nessie Settings → API keys. Used as Bearer on the hosted MCP. Skip if you connect with OAuth."
-      }
-    }
-  }
+  "logo": "assets/logo.png"
 }

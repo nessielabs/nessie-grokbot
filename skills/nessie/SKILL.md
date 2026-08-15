@@ -14,10 +14,10 @@ library. If a successful tool response includes a cloud sync notice, relay its
 message and action before treating sparse results as an empty library.
 
 If a tool call fails with an authentication or entitlement error, tell the
-user to reconnect the Nessie connector. Prefer OAuth when Cursor shows a
-Connect card. If OAuth is unavailable, tell the user to set their Nessie API
-key under **Settings → Plugins → Configure**. Never ask the user to paste an
-API key into chat or commit one to a repository.
+user to reconnect the Nessie connector and complete Cursor's native OAuth
+flow. If the host does not support OAuth, tell the user to configure a Nessie
+API key as a static Bearer header in that host's private MCP settings. Never
+ask the user to paste an API key into chat or commit one to a repository.
 
 ---
 

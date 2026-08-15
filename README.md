@@ -33,18 +33,20 @@ cp -R .cursor-plugin assets skills README.md mcp.json LICENSE \
 
 ## Authenticate
 
-OAuth is preferred. If the client shows a **Connect** card for the Nessie MCP
-server, select it and authorize Nessie.
+Cursor supports OAuth for remote HTTP MCP servers. When Nessie shows **Needs
+authentication** or a **Connect** button, select it and authorize Nessie. The
+plugin intentionally leaves the `Authorization` header unset so Cursor can run
+its native OAuth flow.
 
-If the client only supports static headers, use a Nessie API key:
+If another MCP client only supports static headers, use a Nessie API key as a
+manual fallback:
 
 1. In Nessie, open **Settings → API keys** and create a key. Nessie keys start
    with `sk_nes_v1_`.
-2. Open **Settings → Plugins → Nessie → Configure**.
-3. Set **Nessie API key** to the key you created.
+2. In that client's MCP settings, add an `Authorization` header whose value is
+   `Bearer ` followed by the Nessie API key.
 
-Never paste a real API key into chat, source code, `mcp.json`, or a commit. This
-repository contains only the `${NESSIE_API_KEY}` placeholder.
+Never paste a real API key into chat, source code, `mcp.json`, or a commit.
 
 ## Use Nessie
 
@@ -77,9 +79,8 @@ or a local CLI session.
 
 If Grok Bot stops at a team-configuration or entitlement screen before showing
 plugins, a team admin must resolve that upstream gate first. Once the Nessie
-plugin is available, connect with OAuth when offered or configure the API-key
-fallback. Then run **Nessie check-in** to verify `nessie_check_in`, `nessie_ls`,
-`nessie_grep`, and `nessie_cat` are available.
+plugin is available, connect with OAuth. Then run **Nessie check-in** to verify
+`nessie_check_in`, `nessie_ls`, `nessie_grep`, and `nessie_cat` are available.
 
 This plugin gives Grok Bot access to context already synchronized to Nessie
 Cloud. It does not ingest Grok Bot's own cloud-hosted conversations into Nessie;
@@ -89,8 +90,9 @@ that requires a separate Grok Bot conversation-source integration.
 
 ### Authentication or entitlement error
 
-Reconnect the Nessie connector. If OAuth is unavailable, set the API key under
-**Settings → Plugins → Configure**. Do not share the key in chat.
+Reconnect the Nessie connector and complete Cursor's OAuth flow. For an MCP
+client without OAuth, configure a Nessie API key as a static Bearer header in
+that client's MCP settings. Do not share the key in chat.
 
 ### Empty or incomplete results
 
@@ -101,13 +103,14 @@ notice before treating sparse results as an empty library.
 ### MCP connection errors
 
 Open the Output panel and select **MCP Logs**. Confirm the configured URL is
-`https://mcp.nessielabs.com/mcp` and that the Authorization header is either
-managed by OAuth or resolves to `Bearer sk_nes_v1_…`.
+`https://mcp.nessielabs.com/mcp`. In Cursor, use **Connect** or **Needs
+authentication** to restart OAuth.
 
 ## Security and privacy
 
 - The plugin connects only to `https://mcp.nessielabs.com/mcp`.
-- API-key values are configured by the user and are not stored in this repo.
+- Cursor manages OAuth credentials outside this repository.
+- API-key fallback values for non-OAuth clients are not stored in this repo.
 - Nessie access follows the authenticated user's permissions, including direct
   and team shares.
 - Persistent writes require a preview and explicit confirmation.

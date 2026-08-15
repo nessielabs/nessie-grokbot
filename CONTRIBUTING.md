@@ -26,6 +26,6 @@ exported again from the monorepo source.
 
 ## Secrets
 
-Never commit a real Nessie API key. Plugin configuration must retain the
-`${NESSIE_API_KEY}` placeholder; keys start with `sk_nes_v1_` and belong only in
-the user's plugin configuration.
+Never commit a real Nessie API key. The published Cursor configuration stays
+URL-only so Cursor can initiate OAuth. Keys start with `sk_nes_v1_` and belong
+only in a non-OAuth client's private MCP configuration.
