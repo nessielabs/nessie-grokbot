@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Nessie</title>
+  <desc id="desc">A dark blue Loch Ness monster silhouette on a light blue rounded square.</desc>
+  <defs>
+    <linearGradient id="background" x1="128" y1="0" x2="128" y2="256" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A9F4F3"/>
+      <stop offset="1" stop-color="#8EDBFF"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="7" dy="8" stdDeviation="6" flood-color="#024E68" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect x="2" y="2" width="252" height="252" rx="53" fill="url(#background)" stroke="#7DD6E1" stroke-width="4"/>
+  <path
+    d="M0 178c25-2 44 13 68 12 32-1 36-28 40-61 3-21 2-46 3-66 1-27 18-47 46-47 16 0 31 6 36 18 5 13-8 18-21 20-7 1-14 1-20 3-3 17 4 42 10 66 10 38 25 88 31 133H0Z"
+    fill="#06647F"
+    filter="url(#shadow)"
+  />
+  <path d="M0 181c25-2 45 13 68 12 31-1 37-25 41-56 4 47-4 87-16 119H0Z" fill="#075F88" opacity="0.68"/>
+</svg>

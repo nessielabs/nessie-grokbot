@@ -1,0 +1,28 @@
+{
+  "name": "nessie",
+  "version": "0.1.0",
+  "description": "Nessie context layer: search, read, and write your library from Grok Bot and Cursor.",
+  "author": {
+    "name": "Nessie Labs",
+    "email": "anna@nessielabs.com"
+  },
+  "homepage": "https://nessielabs.com",
+  "license": "MIT",
+  "keywords": [
+    "nessie",
+    "context",
+    "mcp",
+    "memory"
+  ],
+  "logo": "assets/logo.svg",
+  "variables": {
+    "type": "object",
+    "properties": {
+      "NESSIE_API_KEY": {
+        "type": "string",
+        "title": "Nessie API key",
+        "description": "From Nessie Settings → API keys. Used as Bearer on the hosted MCP. Skip if you connect with OAuth."
+      }
+    }
+  }
+}

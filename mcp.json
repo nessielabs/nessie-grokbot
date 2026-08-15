@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "nessie": {
+      "url": "https://mcp.nessielabs.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${NESSIE_API_KEY}"
+      }
+    }
+  }
+}
