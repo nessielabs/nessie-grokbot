@@ -25,7 +25,6 @@ directory, then restart Cursor or run **Developer: Reload Window**:
 
 ```bash
 cd /path/to/nessie-grokbot
-mkdir -p ~/.cursor/plugins/local
 mkdir -p ~/.cursor/plugins/local/nessie
 cp -R .cursor-plugin assets skills README.md mcp.json LICENSE \
   ~/.cursor/plugins/local/nessie/
