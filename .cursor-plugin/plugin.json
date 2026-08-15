@@ -1,0 +1,18 @@
+{
+  "name": "nessie",
+  "version": "0.1.0",
+  "description": "Nessie context layer: search, read, and write your library from Grok Bot and Cursor.",
+  "author": {
+    "name": "Nessie Labs",
+    "email": "anna@nessielabs.com"
+  },
+  "homepage": "https://nessielabs.com",
+  "license": "MIT",
+  "keywords": [
+    "nessie",
+    "context",
+    "mcp",
+    "memory"
+  ],
+  "logo": "assets/logo.png"
+}

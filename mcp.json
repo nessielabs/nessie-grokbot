@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "nessie": {
+      "type": "http",
+      "url": "https://mcp.nessielabs.com/mcp"
+    }
+  }
+}
