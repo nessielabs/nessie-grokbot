@@ -59,7 +59,8 @@ Nessie builds context by analyzing the user's AI conversation history across
 supported AI providers, including chat apps, coding agents, and research tools.
 It can also expose connected source graphs, such as Obsidian vaults with
 folders and notes, or Granola meeting notes organized into folders, when those
-sources are synced.
+sources are synced. Its agent surfaces can also report the token-usage
+analytics derived from imported coding sessions.
 
 ## Default User Experience
 
@@ -73,6 +74,7 @@ spanning both the user's own work and shared sources:
 - "Show me what sources Nessie has available."
 - "Search my Obsidian notes about this project."
 - "What have I already tried for this bug?"
+- "How many tokens did my coding agents use this month?"
 - "Use what I know from Nessie and help me draft this reply."
 - "What has my team been working on this week?"
 - "What did a teammate decide about this project, and why?"
@@ -804,6 +806,19 @@ read and relay its message and action to the user before relying on empty or
 sparse results. The status is a stable machine-readable value such as
 `not_enabled`, `no_synced_data`, or `unknown`. This is not a tool failure; it
 explains why otherwise valid results may be incomplete.
+
+## Usage analytics
+
+Use `nessie_analytics` for questions about token or request usage. It returns
+the canonical dashboard JSON: current and previous reporting periods,
+per-provider/model request and token counts, integration breakdowns, and trend
+buckets. Input, cache-read, cache-write, output, and reasoning token categories
+remain separate. It defaults to the authenticated user's trailing 30 days in
+UTC day buckets; pass the user's IANA `timezone` when known. `teamId` requires
+creator/admin access to that team and adds per-person breakdowns; `trendUserId`
+selects one team member's trend. Usage is attributed to each imported session's
+creation time rather than the exact time of each model request, and the response
+states that rule in `attribution`.
 
 ## Filesystem model
 

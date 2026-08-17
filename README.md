@@ -57,6 +57,7 @@ Then ask naturally, for example:
 
 - "What did I decide about this project?"
 - "Search my past conversations for this error."
+- "How many tokens did my coding agents use this month?"
 - "What has my team already tried?"
 - "Read the latest work Ethan shared with me."
 - "Draft a brief using what I know in Nessie."
@@ -79,7 +80,8 @@ or a local CLI session.
 If Grok Bot stops at a team-configuration or entitlement screen before showing
 plugins, a team admin must resolve that upstream gate first. Once the Nessie
 plugin is available, connect with OAuth. Then run **Nessie check-in** to verify
-`nessie_check_in`, `nessie_ls`, `nessie_grep`, and `nessie_cat` are available.
+`nessie_check_in`, `nessie_analytics`, `nessie_ls`, `nessie_grep`, and
+`nessie_cat` are available.
 
 This plugin gives Grok Bot access to context already synchronized to Nessie
 Cloud. It does not ingest Grok Bot's own cloud-hosted conversations into Nessie;
