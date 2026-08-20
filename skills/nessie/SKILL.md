@@ -895,6 +895,12 @@ Use `nessie_ls` for source discovery and hierarchy traversal:
   or `granola` to scope the overview
 - pass `parentId` to list a directory's direct children (an Obsidian vault or
   folder, a Granola root, etc.)
+- pass `name` for a folder or context named by the user. It performs a
+  case-insensitive node-name substring match before pagination, so named
+  artifacts do not disappear merely because they sort beyond page one
+- every result begins with the displayed range and total. When it reports a
+  `nextOffset`, call `nessie_ls` again with `offset: nextOffset`; do not conclude
+  that a node is absent until the listing is exhausted
 - `nessie_ls` defaults to `all_readable` — everything you can read, your own
   sources plus direct and team shares. Pass `current_user` / `me` to narrow to
   your own, `direct_shared`, `team_shared`, or `shared` to select incoming
