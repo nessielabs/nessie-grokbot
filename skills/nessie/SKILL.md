@@ -1,6 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
+version: 0.1.3
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -18,6 +19,23 @@ user to reconnect the Nessie connector and complete Cursor's native OAuth
 flow. If the host does not support OAuth, tell the user to configure a Nessie
 API key as a static Bearer header in that host's private MCP settings. Never
 ask the user to paste an API key into chat or commit one to a repository.
+
+## Skill Updates
+
+This skill is a local snapshot of
+`https://github.com/nessielabs/nessie-grokbot`; the host does not update it.
+On the first Nessie use in a session, fetch
+`https://raw.githubusercontent.com/nessielabs/nessie-grokbot/main/skill-version.json`
+and compare its `version` to the `version` in this skill's frontmatter. If the
+fetch fails, skip the check and continue.
+
+If the remote version is newer, tell the user an updated Nessie skill is
+available and offer to reinstall it. Only after they agree, download the file
+at the pointer's `skillUrl` and replace this installed skill or private
+workflow with that exact content — never a shortened or rewritten version.
+Never replace the skill silently. If the user declines, do not mention the
+update again until the remote version changes. The MCP connector updates
+itself server-side and never needs this check.
 
 ---
 
