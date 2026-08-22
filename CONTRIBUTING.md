@@ -29,6 +29,21 @@ Do not edit `skills/nessie/SKILL.md` directly. A future refresh must always be
 exported again from the monorepo source. Use the documented space-separated
 options; the exporter does not accept `--target=cursor` or `--out-dir=...`.
 
+## Skill versioning
+
+Installed copies of the skill detect updates by comparing their `version`
+frontmatter against `skill-version.json` in this repository. These two live
+only in this repository — the monorepo source does not carry them — so on
+every skill refresh:
+
+1. After exporting from the monorepo, re-apply the `version` frontmatter field
+   and the "Skill Updates" section if the export removed them.
+2. Bump the `version` in the skill frontmatter and in `skill-version.json` to
+   the same new value in the same commit.
+
+The two must never diverge: the frontmatter is what installed copies hold
+locally, and `skill-version.json` is the remote pointer they poll.
+
 ## Secrets
 
 Never commit a real Nessie API key. The published Cursor configuration stays

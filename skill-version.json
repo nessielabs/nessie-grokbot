@@ -1,0 +1,5 @@
+{
+  "surface": "grokbot",
+  "version": "0.1.3",
+  "skillUrl": "https://raw.githubusercontent.com/nessielabs/nessie-grokbot/main/skills/nessie/SKILL.md"
+}
