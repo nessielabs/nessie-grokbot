@@ -44,6 +44,9 @@ every skill refresh:
 The two must never diverge: the frontmatter is what installed copies hold
 locally, and `skill-version.json` is the remote pointer they poll.
 
+`scripts/validate.sh` enforces this lockstep (and the presence of the "Skill
+Updates" section) and runs in CI on every push and pull request.
+
 ## Secrets
 
 Never commit a real Nessie API key. The published Cursor configuration stays
