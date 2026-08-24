@@ -71,6 +71,21 @@ The skill is generated upstream from Nessie's shared agent instructions. Do not
 edit `skills/nessie/SKILL.md` directly; maintainers should follow
 [CONTRIBUTING.md](CONTRIBUTING.md) to refresh it.
 
+## Skill updates
+
+The MCP connector stays current on its own: new and changed tools come from the
+hosted server on the next call. The skill is a local copy made at install time,
+and Cursor and Grok Bot do not refresh private skills or workflows.
+
+The skill checks for its own updates instead. On the first Nessie use in a
+session, the agent compares the installed skill's `version` frontmatter against
+[`skill-version.json`](skill-version.json) in this repository and offers to
+reinstall from the current `skills/nessie/SKILL.md` when a newer version is
+published. It never replaces the skill without your confirmation. You can also
+update any time by asking your agent to re-download
+`https://raw.githubusercontent.com/nessielabs/nessie-grokbot/main/skills/nessie/SKILL.md`
+and replace the installed Nessie skill with that exact file.
+
 ## Grok Bot
 
 Grok Bot runs on a cloud computer, so it must use the public hosted MCP endpoint

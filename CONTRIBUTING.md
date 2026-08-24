@@ -29,6 +29,35 @@ Do not edit `skills/nessie/SKILL.md` directly. A future refresh must always be
 exported again from the monorepo source. Use the documented space-separated
 options; the exporter does not accept `--target=cursor` or `--out-dir=...`.
 
+## Skill versioning
+
+Installed copies of the skill detect updates by comparing their `version`
+frontmatter against `skill-version.json` in this repository. These two live
+only in this repository — the monorepo source does not carry them — so on
+every skill refresh:
+
+1. After exporting from the monorepo, re-apply the `version` frontmatter field
+   and the "Skill Updates" section if the export removed them.
+2. Bump the `version` in the skill frontmatter and in `skill-version.json` to
+   the same new value in the same commit.
+
+The two must never diverge: the frontmatter is what installed copies hold
+locally, and `skill-version.json` is the remote pointer they poll.
+
+The bump is automated by a pre-commit hook. Install it once after cloning:
+
+```bash
+git config core.hooksPath scripts/hooks
+```
+
+When a commit stages changes under `skills/`, the hook bumps the patch version
+in both files and stages them. To set a version by hand (e.g. a minor bump),
+stage your edited `skill-version.json` in the same commit; the hook then
+leaves both files alone, so set the frontmatter yourself to match.
+
+`scripts/validate.sh` enforces this lockstep (and the presence of the "Skill
+Updates" section) and runs in CI on every push and pull request.
+
 ## Secrets
 
 Never commit a real Nessie API key. The published Cursor configuration stays
