@@ -44,6 +44,17 @@ every skill refresh:
 The two must never diverge: the frontmatter is what installed copies hold
 locally, and `skill-version.json` is the remote pointer they poll.
 
+The bump is automated by a pre-commit hook. Install it once after cloning:
+
+```bash
+git config core.hooksPath scripts/hooks
+```
+
+When a commit stages changes under `skills/`, the hook bumps the patch version
+in both files and stages them. To set a version by hand (e.g. a minor bump),
+stage your edited `skill-version.json` in the same commit; the hook then
+leaves both files alone, so set the frontmatter yourself to match.
+
 `scripts/validate.sh` enforces this lockstep (and the presence of the "Skill
 Updates" section) and runs in CI on every push and pull request.
 

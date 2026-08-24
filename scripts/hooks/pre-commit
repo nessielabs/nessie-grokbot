@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+#
+# Auto-bump the skill version when shipped skill content changes, keeping the
+# SKILL.md frontmatter and skill-version.json pointer in the lockstep
+# scripts/validate.sh enforces. Install with:
+#
+#   git config core.hooksPath scripts/hooks
+#
+# Mirrors the nessie-hermes / nessie-openclaw hooks, minus npm.
+#
+set -euo pipefail
+
+TOPLEVEL="$(git rev-parse --show-toplevel)"
+cd "$TOPLEVEL"
+
+STAGED="$(git diff --cached --name-only)"
+
+# Only bump when shipped skill content changed. Docs-only commits do not
+# trigger a release.
+if ! echo "$STAGED" | grep -q '^skills/'; then
+  exit 0
+fi
+
+# Respect a manual bump: if skill-version.json is already staged, the author is
+# setting the version by hand, so leave everything alone (including the SKILL.md
+# frontmatter, so set it yourself to match).
+if echo "$STAGED" | grep -q '^skill-version.json$'; then
+  exit 0
+fi
+
+python3 - <<'PY'
+import json
+import pathlib
+import re
+
+pointer_path = pathlib.Path("skill-version.json")
+pointer = json.loads(pointer_path.read_text(encoding="utf-8"))
+current = pointer["version"]
+parts = current.split(".")
+parts[-1] = str(int(parts[-1]) + 1)
+new = ".".join(parts)
+
+pointer["version"] = new
+pointer_path.write_text(json.dumps(pointer, indent=2) + "\n", encoding="utf-8")
+
+skill_path = pathlib.Path("skills/nessie/SKILL.md")
+skill = skill_path.read_text(encoding="utf-8")
+skill, count = re.subn(r"^version: .*$", f"version: {new}", skill, count=1, flags=re.MULTILINE)
+if count != 1:
+    raise SystemExit("skills/nessie/SKILL.md must declare version frontmatter (re-apply it after a monorepo export)")
+skill_path.write_text(skill, encoding="utf-8")
+
+print(f"Auto-bumped nessie-grokbot skill: {current} -> {new}")
+PY
+
+git add skill-version.json skills/nessie/SKILL.md
