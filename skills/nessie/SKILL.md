@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.3
+version: 0.1.5
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -52,7 +52,7 @@ Nessie is the context layer for AI-native work — the user's own work plus
 incoming direct and team shares. It gives agents unified access to what the
 user and people sharing with them already know: saved contexts, profile sections, raw AI
 conversation transcripts, and synced source graphs such as Obsidian vaults and
-Granola meeting notes — so they can answer questions, reconstruct prior
+meeting reports — so they can answer questions, reconstruct prior
 decisions, and preserve durable knowledge across sessions. The aim is that any
 question about a person, project, or decision gets the right answer on the first
 call, without the user having to point at a specific source.
@@ -76,7 +76,7 @@ when the user wants the result to be reusable.
 Nessie builds context by analyzing the user's AI conversation history across
 supported AI providers, including chat apps, coding agents, and research tools.
 It can also expose connected source graphs, such as Obsidian vaults with
-folders and notes, or Granola meeting notes organized into folders, when those
+folders and notes, or meeting reports organized into source folders, when those
 sources are synced. Its agent surfaces can also report the token-usage
 analytics derived from imported coding sessions.
 
@@ -403,13 +403,13 @@ Source types serve different purposes:
   them when the user refers to notes, vaults, files, memos, source docs, or
   asks for project knowledge that likely lives outside AI transcripts. Preserve
   their path and hierarchy when citing or selecting them.
-- Granola notes are AI-generated summaries of the user's recorded meetings,
-  organized into folders. Use them when the user refers to a meeting, call,
-  interview, or who-said-what, or asks for decisions and action items from a
-  conversation that happened on a call rather than in an AI chat. Browse granola
-  folders to find a meeting; reading a note returns its AI meeting summary, and
-  the raw transcript turns are indexed for search (they surface under transcript
-  or all-type search), not as browsable child nodes.
+- Meeting sources contain AI-generated reports and transcripts from recorded
+  meetings, organized into source folders. Use them when the user refers to a
+  meeting, call, interview, or who-said-what, or asks for decisions and action
+  items from a conversation that happened on a call rather than in an AI chat.
+  Browse meeting-source folders to find a meeting, read its report for the
+  summary, and use meeting or all-type search when the underlying transcript is
+  needed for exact verification.
 - Profile sections contain structured biographical facts about the user. Check
   the profile for identity, connections, project info, and other recurring
   personal context.
@@ -910,9 +910,10 @@ Use `nessie_ls` for source discovery and hierarchy traversal:
   list. Collaborative folders may contain contexts and subfolders created by
   several teammates; nested listings preserve each item's actual owner
 - pass `sourceType` as `all`, `context`, `transcript`, `profile`, `obsidian`,
-  or `granola` to scope the overview
+  or `meeting` to scope the overview. Prefer the provider-neutral `meeting`
+  category unless the user explicitly asks for one provider
 - pass `parentId` to list a directory's direct children (an Obsidian vault or
-  folder, a Granola root, etc.)
+  folder, a meeting-source root, etc.)
 - pass `name` for a folder or context named by the user. It performs a
   case-insensitive node-name substring match before pagination, so named
   artifacts do not disappear merely because they sort beyond page one
@@ -958,7 +959,7 @@ specific git repos; that filter excludes everything not tied to a repo.
 
 Do not default every request to `type: "context"`. Choose `type` from intent:
 `context` for synthesized orientation, `obsidian` for notes/vaults/files/memos,
-`granola` for recorded meetings/calls, `transcript` for prior AI conversations
+`meeting` for recorded meetings/calls, `transcript` for prior AI conversations
 and resume state, and `all` when several are plausible. For "latest
 developments" or "what changed recently", search recent transcripts and notes
 (with `since`/`until`), not just contexts.

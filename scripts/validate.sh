@@ -2,9 +2,8 @@
 #
 # Validate the skill version lockstep documented in CONTRIBUTING.md: the
 # SKILL.md frontmatter version and the skill-version.json pointer must match,
-# and the pointer must reference the published SKILL.md. This repo is
-# refreshed by manual monorepo export, so there is no auto-bump hook; this
-# check keeps that manual workflow honest.
+# and the pointer must reference the published SKILL.md. The skill is maintained
+# directly in this repository, and this check keeps its release metadata honest.
 #
 set -euo pipefail
 
@@ -23,7 +22,7 @@ skill_version = re.search(r"^version:\s*(\S+)\s*$", skill, re.MULTILINE)
 if not skill_version:
     raise SystemExit("skills/nessie/SKILL.md must declare version frontmatter")
 if "## Skill Updates" not in skill:
-    raise SystemExit("skills/nessie/SKILL.md must keep the Skill Updates section (re-apply it after a monorepo export)")
+    raise SystemExit("skills/nessie/SKILL.md must keep the Skill Updates section")
 
 pointer_path = root / "skill-version.json"
 if not pointer_path.is_file():

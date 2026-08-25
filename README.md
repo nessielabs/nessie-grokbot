@@ -67,9 +67,9 @@ before answering, and treat Nessie as read-only by default. Before any create,
 edit, move, rename, or delete, the agent must show an exact preview and wait for
 your confirmation.
 
-The skill is generated upstream from Nessie's shared agent instructions. Do not
-edit `skills/nessie/SKILL.md` directly; maintainers should follow
-[CONTRIBUTING.md](CONTRIBUTING.md) to refresh it.
+The skill is maintained directly in this repository through normal pull
+requests. Maintainers should follow [CONTRIBUTING.md](CONTRIBUTING.md) when
+updating it.
 
 ## Skill updates
 
