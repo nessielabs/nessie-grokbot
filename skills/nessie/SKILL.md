@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.3
+version: 0.1.4
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -910,9 +910,10 @@ Use `nessie_ls` for source discovery and hierarchy traversal:
   list. Collaborative folders may contain contexts and subfolders created by
   several teammates; nested listings preserve each item's actual owner
 - pass `sourceType` as `all`, `context`, `transcript`, `profile`, `obsidian`,
-  or `granola` to scope the overview
+  or `meeting` to scope the overview. Prefer the provider-neutral `meeting`
+  category unless the user explicitly asks for one provider
 - pass `parentId` to list a directory's direct children (an Obsidian vault or
-  folder, a Granola root, etc.)
+  folder, a meeting-source root, etc.)
 - pass `name` for a folder or context named by the user. It performs a
   case-insensitive node-name substring match before pagination, so named
   artifacts do not disappear merely because they sort beyond page one
@@ -958,7 +959,7 @@ specific git repos; that filter excludes everything not tied to a repo.
 
 Do not default every request to `type: "context"`. Choose `type` from intent:
 `context` for synthesized orientation, `obsidian` for notes/vaults/files/memos,
-`granola` for recorded meetings/calls, `transcript` for prior AI conversations
+`meeting` for recorded meetings/calls, `transcript` for prior AI conversations
 and resume state, and `all` when several are plausible. For "latest
 developments" or "what changed recently", search recent transcripts and notes
 (with `since`/`until`), not just contexts.
