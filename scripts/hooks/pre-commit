@@ -47,7 +47,7 @@ skill_path = pathlib.Path("skills/nessie/SKILL.md")
 skill = skill_path.read_text(encoding="utf-8")
 skill, count = re.subn(r"^version: .*$", f"version: {new}", skill, count=1, flags=re.MULTILINE)
 if count != 1:
-    raise SystemExit("skills/nessie/SKILL.md must declare version frontmatter (re-apply it after a monorepo export)")
+    raise SystemExit("skills/nessie/SKILL.md must declare version frontmatter")
 skill_path.write_text(skill, encoding="utf-8")
 
 print(f"Auto-bumped nessie-grokbot skill: {current} -> {new}")
