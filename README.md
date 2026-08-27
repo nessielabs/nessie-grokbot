@@ -119,12 +119,14 @@ notice before treating sparse results as an empty library.
 ### MCP connection errors
 
 Open the Output panel and select **MCP Logs**. Confirm the configured URL is
-`https://mcp.nessielabs.com/mcp`. In Cursor, use **Connect** or **Needs
+`https://mcp.nessielabs.com/mcp?client=grokbot`. In Cursor, use **Connect** or **Needs
 authentication** to restart OAuth.
 
 ## Security and privacy
 
-- The plugin connects only to `https://mcp.nessielabs.com/mcp`.
+- The plugin connects only to `https://mcp.nessielabs.com/mcp?client=grokbot`.
+- The `client=grokbot` marker uses the same hosted MCP route as every other
+  Nessie connector and only supplies a bounded client-surface telemetry label.
 - Cursor manages OAuth credentials outside this repository.
 - API-key fallback values for non-OAuth clients are not stored in this repo.
 - Nessie access follows the authenticated user's permissions, including direct
