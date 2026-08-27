@@ -17,6 +17,18 @@ import sys
 
 root = pathlib.Path(sys.argv[1])
 
+mcp = json.loads((root / "mcp.json").read_text(encoding="utf-8"))
+mcp_url = mcp.get("mcpServers", {}).get("nessie", {}).get("url")
+expected_mcp_url = "https://mcp.nessielabs.com/mcp?client=grokbot"
+if mcp_url != expected_mcp_url:
+    raise SystemExit(
+        f"mcp.json Nessie URL must be {expected_mcp_url}, got {mcp_url!r}"
+    )
+
+readme = (root / "README.md").read_text(encoding="utf-8")
+if expected_mcp_url not in readme:
+    raise SystemExit(f"README.md must mention the attributed Nessie URL {expected_mcp_url}")
+
 skill = (root / "skills/nessie/SKILL.md").read_text(encoding="utf-8")
 skill_version = re.search(r"^version:\s*(\S+)\s*$", skill, re.MULTILINE)
 if not skill_version:

@@ -2,7 +2,7 @@
   "mcpServers": {
     "nessie": {
       "type": "http",
-      "url": "https://mcp.nessielabs.com/mcp"
+      "url": "https://mcp.nessielabs.com/mcp?client=grokbot"
     }
   }
 }

@@ -92,6 +92,11 @@ Grok Bot runs on a cloud computer, so it must use the public hosted MCP endpoint
 configured by this plugin. It cannot reach the Nessie desktop app's local socket
 or a local CLI session.
 
+This repository ships one connector configuration for both Grok Bot and Cursor.
+Requests from either host intentionally use the package-level `client=grokbot`
+telemetry label; it identifies this distribution and does not distinguish which
+of the two host applications made the request.
+
 If Grok Bot stops at a team-configuration or entitlement screen before showing
 plugins, a team admin must resolve that upstream gate first. Once the Nessie
 plugin is available, connect with OAuth. Then run **Nessie check-in** to verify
@@ -119,12 +124,14 @@ notice before treating sparse results as an empty library.
 ### MCP connection errors
 
 Open the Output panel and select **MCP Logs**. Confirm the configured URL is
-`https://mcp.nessielabs.com/mcp`. In Cursor, use **Connect** or **Needs
+`https://mcp.nessielabs.com/mcp?client=grokbot`. In Cursor, use **Connect** or **Needs
 authentication** to restart OAuth.
 
 ## Security and privacy
 
-- The plugin connects only to `https://mcp.nessielabs.com/mcp`.
+- The plugin connects only to `https://mcp.nessielabs.com/mcp?client=grokbot`.
+- The `client=grokbot` marker uses the same hosted MCP route as every other
+  Nessie connector and only supplies a bounded client-surface telemetry label.
 - Cursor manages OAuth credentials outside this repository.
 - API-key fallback values for non-OAuth clients are not stored in this repo.
 - Nessie access follows the authenticated user's permissions, including direct
