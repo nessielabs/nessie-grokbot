@@ -25,6 +25,10 @@ if mcp_url != expected_mcp_url:
         f"mcp.json Nessie URL must be {expected_mcp_url}, got {mcp_url!r}"
     )
 
+readme = (root / "README.md").read_text(encoding="utf-8")
+if expected_mcp_url not in readme:
+    raise SystemExit(f"README.md must mention the attributed Nessie URL {expected_mcp_url}")
+
 skill = (root / "skills/nessie/SKILL.md").read_text(encoding="utf-8")
 skill_version = re.search(r"^version:\s*(\S+)\s*$", skill, re.MULTILINE)
 if not skill_version:
