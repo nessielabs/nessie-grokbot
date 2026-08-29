@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.5
+version: 0.1.6
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -212,6 +212,48 @@ A public context link is a separate publishing control. Anyone with that link
 can read the context in a browser without a Nessie account while the public link
 is enabled. Public links do not expose the user's other contexts, sources, or
 profile.
+
+## Session Initiation
+
+Agent-session results may expose two related fields:
+
+- `executionMode` is the raw provider signal, stored unchanged in a
+  provider-owned namespace such as `grok:automation:<task-id>`,
+  `claude-code:sdk`, or `codex:codex_exec`.
+- `initiated` is Nessie's derived, provider-neutral category: `human`, `agent`,
+  or `automation`.
+
+`human` covers directly initiated interactive sessions. `agent` covers
+programmatic agent/orchestrator launches and known provider background work.
+`automation` requires an explicit provider signal or membership beneath an
+automation-definition node; that relationship takes precedence over a generic
+programmatic execution mode. Provider-native child sessions remain excluded.
+No initiation filter means all sessions.
+
+An `initiated` filter on `nessie_ls` applies only to session nodes among the
+current listing's direct children. It does not recurse or retain a container
+just because matching sessions exist beneath it. Before concluding that a
+source has no matching sessions, list it unfiltered, drill into container nodes
+such as automation definitions, and then apply the filter. Use parent-scoped
+`nessie_grep` when the task is a recursive content search. Known non-session
+listings, including the virtual Contexts root, reject an initiation filter
+instead of returning a misleading empty result.
+
+Combine `initiated` only with `sourceType: "all"` or `"transcript"` on
+`nessie_ls`, and with `type: "all"` or `"transcript"` on `nessie_grep`. An
+initiated grep cannot also use `repos`; if it specifies `kind`, use a
+conversation-node kind.
+
+Treat initiation as launch mechanics, not source ownership or the identity of
+every speaker inside a transcript. When the user asks about human work — for
+example, "what did I work on?", "where did I leave off?", "what did Tiger
+decide?", or a person's recent activity — pass `initiated: "human"` on
+surfaces that expose it. Use `agent` or `automation` when the user explicitly
+asks about those runs. Omit the filter only when they want all session activity
+regardless of who or what started it. Do not guess initiation from titles,
+prompts, machine hosts, cron environment variables, or webhook-shaped content;
+use the derived field and retain `executionMode` when raw evidence is useful
+for debugging.
 
 ## Search Strategy
 
@@ -883,10 +925,12 @@ tool.
 ## Listing: nessie_ls
 
 `nessie_ls` returns a compact CLI-style table — columns `kind`, `owner`,
-`updated`, `id`, `name`. `owner` is `me` or the owner's email. A `shared` column
-is inserted after `owner` only when one of the user's own sources carries an
-outgoing grant; its value is a bounded headline of personal and team audiences
-— a team name, `<team> admins`, a person, or `+N` when there are more. A context
+`updated`, `id`, `name`. Listings containing classified sessions also include
+`initiated` and `execution` columns. `owner` is `me` or the owner's email. A
+`shared` column is inserted after `owner` only when one of the user's own
+sources carries an outgoing grant; its value is a bounded headline of personal
+and team audiences — a team name, `<team> admins`, a person, or `+N` when there
+are more. A context
 shown inside a shared folder inherits that folder's audience, so it is not
 blank. The column covers integration roots, folders, and contexts. For those
 kinds, its absence means no listed shareable node has a visible outgoing grant.
@@ -914,6 +958,10 @@ Use `nessie_ls` for source discovery and hierarchy traversal:
   category unless the user explicitly asks for one provider
 - pass `parentId` to list a directory's direct children (an Obsidian vault or
   folder, a meeting-source root, etc.)
+- pass `initiated` as `human`, `agent`, or `automation` to retain classified
+  session nodes with that launch mechanic among those direct children. This
+  filter does not recurse; list containers unfiltered and traverse them before
+  applying it. Non-session listings such as the virtual Contexts root reject it
 - pass `name` for a folder or context named by the user. It performs a
   case-insensitive node-name substring match before pagination, so named
   artifacts do not disappear merely because they sort beyond page one
@@ -926,8 +974,9 @@ Use `nessie_ls` for source discovery and hierarchy traversal:
   grant paths, or an explicit `{ userId }` / `{ email }` for a specific source
   owner.
 
-Use `nessie_stat` to see a node's metadata (kind, owner, size, dates) without
-its body — to size or inspect a node before reading or listing it.
+Use `nessie_stat` to see a node's metadata (kind, owner, size, dates, and, for a
+classified session, `initiated` plus raw `executionMode`) without its body — to
+size or inspect a node before reading or listing it.
 
 ## Searching: nessie_grep
 
@@ -937,6 +986,12 @@ source discovery or named navigation. It returns text blocks — one per hit, a
 `sliceId: ... · modality: ...` line for cloud hits, then the matching content.
 Use the header's node ID with `nessie_cat`; use `sliceId` only for a confirmed
 modality correction.
+
+Pass `initiated` as `human`, `agent`, or `automation` to restrict transcript
+hits by session launch mechanics. Unlike `nessie_ls`, parent-scoped
+`nessie_grep` searches recursively. For first-person work, a named person's
+work, or resume/takeover discovery, use `initiated: "human"` unless the user
+explicitly asks for agent or automation runs.
 
 `nessie_grep` defaults to `owner: "all_readable"`. Pass `owner:
 "direct_shared"` for incoming peer-to-peer grants, `owner: "team_shared"` for
@@ -1024,10 +1079,12 @@ Exact ISO instants are also accepted. Date-only bounds require `timezone`.
 For "Nessie resume", "Nessie takeover", "resume this session", or a pasted
 conversation/node ID, treat resume as search-then-read. With an ID, call
 `nessie_tail` for the recent end and `nessie_head` for the framing beginning.
-Without an ID, `nessie_grep` with `type: "transcript"` and the user's clue,
-choose the matching candidate, then read its head and tail. The handoff state
-usually lives near the end, so bias toward `nessie_tail`; then grep distinctive
-terms from the tail and read adjacent content before continuing.
+Without an ID, `nessie_grep` with `type: "transcript"`, `initiated: "human"`,
+and the user's clue, choose the matching candidate, then read its head and tail.
+Omit or change the initiation filter only when they explicitly want an agent or
+automation run. The handoff state usually lives near the end, so bias toward
+`nessie_tail`; then grep distinctive terms from the tail and read adjacent
+content before continuing.
 
 ## Search modality corrections
 
