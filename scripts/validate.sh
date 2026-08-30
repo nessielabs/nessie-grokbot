@@ -35,6 +35,15 @@ if not skill_version:
     raise SystemExit("skills/nessie/SKILL.md must declare version frontmatter")
 if "## Skill Updates" not in skill:
     raise SystemExit("skills/nessie/SKILL.md must keep the Skill Updates section")
+for needle in [
+    "## Session Initiation",
+    "`initiated` is Nessie's derived, provider-neutral category",
+    "current listing's direct children",
+    'use `initiated: "human"`',
+    "including the virtual Contexts root, reject an initiation filter",
+]:
+    if needle not in skill:
+        raise SystemExit(f"skills/nessie/SKILL.md must mention {needle}")
 
 pointer_path = root / "skill-version.json"
 if not pointer_path.is_file():
