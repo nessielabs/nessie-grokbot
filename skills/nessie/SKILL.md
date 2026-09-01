@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.7
+version: 0.1.8
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -285,6 +285,11 @@ Memory descriptors use the semantic kinds `native_memory_collection` and
 `workspacePath`, and `repoKey`. During migration, older rows may still report
 `local_folder` or `local_file`; source IDs beginning with `claude-memory` or
 `codex-memory` carry the same native-memory semantics.
+
+During rollout, an older MCP host may reject the `memory` filter even though
+memory nodes are readable. In that case browse the coding-agent integration
+root and recognize source IDs beginning with `claude-memory` or `codex-memory`;
+do not broaden to every `local_file`.
 
 ## Search Strategy
 
@@ -929,12 +934,6 @@ may include the provider, workspace path, repo key, and a
 `requiresVerification` flag. Use it to plan the next search, then verify against
 recent transcripts or current repository files before relying on it. Never
 count a memory file as a transcript or activity event.
-
-During rollout, an older MCP host may reject the `memory` filter even though
-memory nodes are readable. In that case browse the coding-agent integration
-root and recognize source IDs beginning with `claude-memory` or `codex-memory`;
-do not broaden to every `local_file`. Keep different providers' memories
-separate and do not infer that repo association makes a memory shared.
 
 ## Check-in and profile
 
