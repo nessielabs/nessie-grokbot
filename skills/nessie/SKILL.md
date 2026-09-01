@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.6
+version: 0.1.7
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -254,6 +254,37 @@ regardless of who or what started it. Do not guess initiation from titles,
 prompts, machine hosts, cron environment variables, or webhook-shaped content;
 use the derived field and retain `executionMode` when raw evidence is useful
 for debugging.
+
+## Native Coding-Agent Memory
+
+Claude Code and Codex may synthesize project-scoped Markdown memory from prior
+work. Nessie exposes this as the provider-neutral `memory` source type while
+preserving the authoring provider (`claude_code` or `codex`), workspace path,
+and stable repository identity. It is a read-only mirror of what that coding
+agent currently believes about a project. It is not a transcript, user-authored
+note, durable Nessie context, or independent evidence that an event occurred.
+
+Use native memory as a query planner: read it to learn project vocabulary,
+likely decisions, file paths, and promising searches. Then verify every claim
+that matters against current repository files, recent transcripts, or another
+primary source before answering or acting. For resume/takeover requests,
+transcripts remain the authoritative record of what happened and their recent
+tails remain the best handoff state. Never report a native-memory file as a
+session, activity event, decision record, or paid/usage metric.
+
+Keep provider memories separate. A Claude Code memory and a Codex memory about
+the same repo are two provider beliefs, not records to merge automatically.
+Conflicts are useful retrieval signals: surface the disagreement and resolve it
+from primary evidence. Treat native memory as private unless the returned
+source ownership/access metadata explicitly shows otherwise; never infer
+sharing from its repository association alone.
+
+Memory descriptors use the semantic kinds `native_memory_collection` and
+`native_memory`, and may include `sourceType: memory`, `provider`,
+`authority: derived`, `readOnly: true`, `requiresVerification: true`,
+`workspacePath`, and `repoKey`. During migration, older rows may still report
+`local_folder` or `local_file`; source IDs beginning with `claude-memory` or
+`codex-memory` carry the same native-memory semantics.
 
 ## Search Strategy
 
@@ -890,6 +921,21 @@ transcripts, profile sections, single messages) are read with `nessie_cat`,
 `nessie_head`, or `nessie_tail`. A node can be both. Copy the `id` from any row
 to read, search, or traverse deeper.
 
+### Native Coding-Agent Memory
+
+Pass `memory` as the source/search type when you deliberately want Claude Code
+or Codex native memory. Results expose it as derived, read-only orientation and
+may include the provider, workspace path, repo key, and a
+`requiresVerification` flag. Use it to plan the next search, then verify against
+recent transcripts or current repository files before relying on it. Never
+count a memory file as a transcript or activity event.
+
+During rollout, an older MCP host may reject the `memory` filter even though
+memory nodes are readable. In that case browse the coding-agent integration
+root and recognize source IDs beginning with `claude-memory` or `codex-memory`;
+do not broaden to every `local_file`. Keep different providers' memories
+separate and do not infer that repo association makes a memory shared.
+
 ## Check-in and profile
 
 Use `nessie_check_in` when the user starts a chat with "Nessie check-in", says
@@ -954,8 +1000,8 @@ Use `nessie_ls` for source discovery and hierarchy traversal:
   list. Collaborative folders may contain contexts and subfolders created by
   several teammates; nested listings preserve each item's actual owner
 - pass `sourceType` as `all`, `context`, `transcript`, `profile`, `obsidian`,
-  or `meeting` to scope the overview. Prefer the provider-neutral `meeting`
-  category unless the user explicitly asks for one provider
+  `memory`, or `meeting` to scope the overview. Prefer the provider-neutral
+  `meeting` category unless the user explicitly asks for one provider
 - pass `parentId` to list a directory's direct children (an Obsidian vault or
   folder, a meeting-source root, etc.)
 - pass `initiated` as `human`, `agent`, or `automation` to retain classified
@@ -1015,9 +1061,10 @@ specific git repos; that filter excludes everything not tied to a repo.
 Do not default every request to `type: "context"`. Choose `type` from intent:
 `context` for synthesized orientation, `obsidian` for notes/vaults/files/memos,
 `meeting` for recorded meetings/calls, `transcript` for prior AI conversations
-and resume state, and `all` when several are plausible. For "latest
-developments" or "what changed recently", search recent transcripts and notes
-(with `since`/`until`), not just contexts.
+and resume state, `memory` for provider-derived project orientation that will
+be verified against primary evidence, and `all` when several are plausible.
+For "latest developments" or "what changed recently", search recent transcripts
+and notes (with `since`/`until`), not just contexts.
 
 ## Reading: nessie_cat, nessie_head, nessie_tail
 

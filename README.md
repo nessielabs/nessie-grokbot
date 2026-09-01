@@ -57,15 +57,17 @@ Then ask naturally, for example:
 
 - "What did I decide about this project?"
 - "Search my past conversations for this error."
+- "Use my coding-agent memory to orient this project, then verify it."
 - "How many tokens did my coding agents use this month?"
 - "What has my team already tried?"
 - "Read the latest work Ethan shared with me."
 - "Draft a brief using what I know in Nessie."
 
-The bundled skill tells the agent to browse and search first, read full sources
-before answering, and treat Nessie as read-only by default. Before any create,
-edit, move, rename, or delete, the agent must show an exact preview and wait for
-your confirmation.
+The bundled skill tells the agent to browse and search first, use Claude Code
+and Codex native memory only as read-only project orientation, read primary
+sources before answering, and treat Nessie as read-only by default. Before any
+create, edit, move, rename, or delete, the agent must show an exact preview and
+wait for your confirmation.
 
 The skill is maintained directly in this repository through normal pull
 requests. Maintainers should follow [CONTRIBUTING.md](CONTRIBUTING.md) when
