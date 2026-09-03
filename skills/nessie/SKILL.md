@@ -37,6 +37,12 @@ Never replace the skill silently. If the user declines, do not mention the
 update again until the remote version changes. The MCP connector updates
 itself server-side and never needs this check.
 
+## Host Context
+
+Neither Cursor nor Grok Bot exposes the user's timezone or current date to
+this skill. When a date boundary matters, ask the user for their timezone;
+do not silently fall back to UTC.
+
 ---
 
 # Nessie Agent Behavior
