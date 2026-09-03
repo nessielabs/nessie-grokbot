@@ -36,6 +36,8 @@ if not skill_version:
 if "## Skill Updates" not in skill:
     raise SystemExit("skills/nessie/SKILL.md must keep the Skill Updates section")
 for needle in [
+    "nessie_skill_analytics_overview",
+    "recentUses.nextCursor",
     "## Session Initiation",
     "`initiated` is Nessie's derived, provider-neutral category",
     "current listing's direct children",
