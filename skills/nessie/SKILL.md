@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.9
+version: 0.1.10
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -36,6 +36,12 @@ workflow with that exact content — never a shortened or rewritten version.
 Never replace the skill silently. If the user declines, do not mention the
 update again until the remote version changes. The MCP connector updates
 itself server-side and never needs this check.
+
+## Host Context
+
+Neither Cursor nor Grok Bot exposes the user's timezone or current date to
+this skill. When a date boundary matters, ask the user for their timezone;
+do not silently fall back to UTC.
 
 ---
 
@@ -213,7 +219,7 @@ can read the context in a browser without a Nessie account while the public link
 is enabled. Public links do not expose the user's other contexts, sources, or
 profile.
 
-## Session Initiation
+## Session initiation
 
 Agent-session results may expose two related fields:
 
@@ -230,32 +236,27 @@ automation-definition node; that relationship takes precedence over a generic
 programmatic execution mode. Provider-native child sessions remain excluded.
 No initiation filter means all sessions.
 
-An `initiated` filter on `nessie_ls` applies only to session nodes among the
-current listing's direct children. It does not recurse or retain a container
+An initiation filter on `ls` / `nessie_ls` applies only to session nodes among
+the current listing's direct children. It does not recurse or keep a container
 just because matching sessions exist beneath it. Before concluding that a
 source has no matching sessions, list it unfiltered, drill into container nodes
-such as automation definitions, and then apply the filter. Use parent-scoped
-`nessie_grep` when the task is a recursive content search. Known non-session
-listings, including the virtual Contexts root, reject an initiation filter
-instead of returning a misleading empty result.
-
-Combine `initiated` only with `sourceType: "all"` or `"transcript"` on
-`nessie_ls`, and with `type: "all"` or `"transcript"` on `nessie_grep`. An
-initiated grep cannot also use `repos`; if it specifies `kind`, use a
-conversation-node kind.
+such as automation definitions, and then apply the initiation filter. Use a
+parent-scoped `grep` / `nessie_grep` when the task is a recursive content search.
+Known non-session listings, including the virtual Contexts root, reject an
+initiation filter instead of returning a misleading empty result.
 
 Treat initiation as launch mechanics, not source ownership or the identity of
 every speaker inside a transcript. When the user asks about human work — for
 example, "what did I work on?", "where did I leave off?", "what did Tiger
 decide?", or a person's recent activity — pass `initiated: "human"` on
-surfaces that expose it. Use `agent` or `automation` when the user explicitly
-asks about those runs. Omit the filter only when they want all session activity
-regardless of who or what started it. Do not guess initiation from titles,
-prompts, machine hosts, cron environment variables, or webhook-shaped content;
-use the derived field and retain `executionMode` when raw evidence is useful
-for debugging.
+surfaces that expose it. Use `agent` or `automation` when the user explicitly asks about
+those runs. Omit the filter only when they want all session activity regardless
+of who or what started it. Do not guess initiation from titles, prompts,
+machine hosts, cron environment variables, or webhook-shaped content; use the
+derived field and retain `executionMode` when raw evidence is useful for
+debugging.
 
-## Native Coding-Agent Memory
+## Native coding-agent memory
 
 Claude Code and Codex may synthesize project-scoped Markdown memory from prior
 work. Nessie exposes this as the provider-neutral `memory` source type while
@@ -285,11 +286,6 @@ Memory descriptors use the semantic kinds `native_memory_collection` and
 `workspacePath`, and `repoKey`. During migration, older rows may still report
 `local_folder` or `local_file`; source IDs beginning with `claude-memory` or
 `codex-memory` carry the same native-memory semantics.
-
-During rollout, an older MCP host may reject the `memory` filter even though
-memory nodes are readable. In that case browse the coding-agent integration
-root and recognize source IDs beginning with `claude-memory` or `codex-memory`;
-do not broaden to every `local_file`.
 
 ## Search Strategy
 
@@ -910,10 +906,9 @@ the canonical dashboard JSON: current and previous reporting periods,
 per-provider/model request and token counts, integration breakdowns, and trend
 buckets. Input, cache-read, cache-write, output, and reasoning token categories
 remain separate. It defaults to the authenticated user's trailing 30 days in
-UTC day buckets; `hour` granularity is available for single-day questions;
-pass the user's IANA `timezone` when known. `teamId` requires creator/admin
-access to that team and adds per-person breakdowns; `trendUserId` selects one
-team member's trend. Usage is attributed to each imported session's
+UTC day buckets; pass the user's IANA `timezone` when known. `teamId` requires
+creator/admin access to that team and adds per-person breakdowns; `trendUserId`
+selects one team member's trend. Usage is attributed to each imported session's
 creation time rather than the exact time of each model request, and the response
 states that rule in `attribution`.
 
@@ -946,15 +941,18 @@ evaluated, not that it failed.
 
 ## Filesystem model
 
-Everything is a **node** addressed by UUID (one exception: same-API-key groups
-of your other devices' sources list under an opaque `grp_…` id — pass it to the
-list tool like any directory id). Directories (integration roots,
+Everything is a **node** addressed by UUID. Roots synced from the user's other
+devices under one API key list as a single combined entry keyed by a
+representative root's UUID; the local Nessie CLI and app print such groups
+under an opaque `grp_…` id instead. If the user pastes a `grp_…` id, this
+connector cannot resolve it: rerun `nessie_ls` here and use the combined
+entry's UUID. Directories (integration roots,
 vaults, folders) are listed with `nessie_ls`; files (contexts, notes,
 transcripts, profile sections, single messages) are read with `nessie_cat`,
 `nessie_head`, or `nessie_tail`. A node can be both. Copy the `id` from any row
 to read, search, or traverse deeper.
 
-### Native Coding-Agent Memory
+### Native coding-agent memory
 
 Pass `memory` as the source/search type when you deliberately want Claude Code
 or Codex native memory. Results expose it as derived, read-only orientation and
@@ -963,13 +961,25 @@ may include the provider, workspace path, repo key, and a
 recent transcripts or current repository files before relying on it. Never
 count a memory file as a transcript or activity event.
 
+During rollout, an older MCP host may reject the `memory` filter even though
+memory nodes are readable. In that case browse the coding-agent integration
+root and recognize source IDs beginning with `claude-memory` or `codex-memory`;
+do not broaden to every `local_file`. Keep different providers' memories
+separate and do not infer that repo association makes a memory shared.
+
 ## Check-in and profile
 
 Use `nessie_check_in` when the user starts a chat with "Nessie check-in", says
 "check in with Nessie", or asks to load their Nessie context before continuing.
-It returns the user's generated profile sections and recent Nessie activity as
-JSON; synthesize any working brief yourself. Pass `timezone` (an IANA zone such
-as `America/Los_Angeles`) so the recent-activity and profile `displayTimestamp`
+It is the pasteable startup primitive for MCP hosts. It returns the user's
+generated profile sections and recent Nessie activity as JSON; synthesize any
+working brief yourself. Profile sections arrive as source nodes:
+`{ id, name, kind, emoji, updatedAt, displayUpdatedAt, content }`, where
+`content` is the raw JSON section payload. `recentActivity.returned` is the
+number of recent activity documents included, bounded by the requested
+`recentLimit`; it is not a count of all available Nessie documents. Pass
+`timezone` (an IANA zone such as `America/Los_Angeles`, from the host's user
+timezone context when it is exposed) so the recent-activity and profile `displayTimestamp`
 fields render in the user's local time; without it those display fields are
 explicit UTC, while the canonical `originalUpdatedAt` / `updatedAt` ISO fields
 are always present. `nessie_who_am_i` takes the same `timezone` parameter.
@@ -1027,14 +1037,15 @@ Use `nessie_ls` for source discovery and hierarchy traversal:
   list. Collaborative folders may contain contexts and subfolders created by
   several teammates; nested listings preserve each item's actual owner
 - pass `sourceType` as `all`, `context`, `transcript`, `profile`, `obsidian`,
-  `memory`, or `meeting` to scope the overview. Prefer the provider-neutral
-  `meeting` category unless the user explicitly asks for one provider
+  `memory`, or `meeting` to scope the overview. Prefer the provider-neutral `meeting`
+  category unless the user explicitly asks for one provider
 - pass `parentId` to list a directory's direct children (an Obsidian vault or
   folder, a meeting-source root, etc.)
 - pass `initiated` as `human`, `agent`, or `automation` to retain classified
   session nodes with that launch mechanic among those direct children. This
   filter does not recurse; list containers unfiltered and traverse them before
-  applying it. Non-session listings such as the virtual Contexts root reject it
+  applying it. Non-session listings such as the virtual Contexts root reject it.
+  Combine `initiated` only with `sourceType: "all"` or `"transcript"`
 - pass `name` for a folder or context named by the user. It performs a
   case-insensitive node-name substring match before pagination, so named
   artifacts do not disappear merely because they sort beyond page one
@@ -1060,16 +1071,10 @@ source discovery or named navigation. It returns text blocks — one per hit, a
 Use the header's node ID with `nessie_cat`; use `sliceId` only for a confirmed
 modality correction.
 
-Pass `initiated` as `human`, `agent`, or `automation` to restrict transcript
-hits by session launch mechanics. Unlike `nessie_ls`, parent-scoped
-`nessie_grep` searches recursively. For first-person work, a named person's
-work, or resume/takeover discovery, use `initiated: "human"` unless the user
-explicitly asks for agent or automation runs.
-
-`nessie_grep` defaults to `owner: "all_readable"`. Pass `owner:
-"direct_shared"` for incoming peer-to-peer grants, `owner: "team_shared"` for
-incoming team-derived grants, or `owner: "shared"` for both incoming paths,
-always excluding the user's own corpus. `owner: "team"` is a legacy alias for
+`nessie_grep` defaults to `owner: "all_readable"`. Pass
+`owner: "direct_shared"` for incoming peer-to-peer grants,
+`owner: "team_shared"` for incoming team-derived grants, or `owner: "shared"`
+for both incoming paths, always excluding the user's own corpus. `owner: "team"` is a legacy alias for
 `team_shared`.
 `nessie_who_am_i` reads your own profile. Hybrid semantic + full-text by
 default, tuned for fuzzy, conceptual queries, so it under-returns short
@@ -1085,24 +1090,44 @@ nothing - that under-return is a search-mode artifact, not absence of data. Pass
 recursive-search affordance. Pass `repos` (canonical repoKeys) to narrow to
 specific git repos; that filter excludes everything not tied to a repo.
 
-Do not default every request to `type: "context"`. Choose `type` from intent:
+Pass `initiated` as `human`, `agent`, or `automation` to restrict transcript
+hits by session launch mechanics. Unlike `nessie_ls`, parent-scoped
+`nessie_grep` searches recursively. For first-person work, a named person's
+work, or resume/takeover discovery, use `initiated: "human"` unless the user
+explicitly asks for agent or automation runs. Combine `initiated` only with
+`type: "all"` or `"transcript"`; an initiated grep cannot also use `repos`, and
+if it specifies `kind`, use a conversation-node kind.
+
+Do not default every discovery or knowledge request to `type: "context"`. Choose `type` from intent:
 `context` for synthesized orientation, `obsidian` for notes/vaults/files/memos,
 `meeting` for recorded meetings/calls, `transcript` for prior AI conversations
 and resume state, `memory` for provider-derived project orientation that will
-be verified against primary evidence, and `all` when several are plausible.
-For "latest developments" or "what changed recently", search recent transcripts
-and notes (with `since`/`until`), not just contexts.
+be verified against primary evidence, and `all` when several are plausible. For "latest
+developments" or "what changed recently", search recent transcripts and notes
+(with `since`/`until`), not just contexts.
 
 ## Reading: nessie_cat, nessie_head, nessie_tail
 
 Use `nessie_cat` to read a node's full content, `nessie_head`/`nessie_tail` for
 the first/last N lines. They support contexts, transcripts, Nessie chats,
 Obsidian notes, profile sections, and single messages; containers are rejected
-with an "is a directory" error pointing back to `nessie_ls`. A search match
-lands mid-conversation, not at its conclusion: read the whole node, or use
+with an "is a directory" error pointing back to `nessie_ls`. When reading
+Obsidian notes, preserve `sourceId` or `path` in citations or source selection.
+A search match lands mid-conversation, not at its conclusion: read the whole node, or use
 `nessie_tail` for the end of a long transcript, since the decision, conclusion,
 current state, or who-said-what usually comes later. Skim the beginning too — it
 frames whether the matched text is the user's own words or quoted material.
+
+A successful text read may end with a cloud sync notice in this shape:
+
+```
+# cloud sync: not_enabled
+# <message>
+# <action>
+```
+
+If present, relay its message and action to the user before relying on empty
+or sparse results.
 
 `nessie_asset_get` accepts an asset UUID or
 `https://assets.nessielabs.com/v1/<asset-id>` URL and returns MCP image content,
@@ -1110,8 +1135,8 @@ so an agent can inspect images referenced by a context when useful.
 
 ## Source ownership
 
-Use `sourceOwner` (and the `owner` column) as the sole authority for source
-ownership and scoping. It identifies whose source was queried; it does not prove
+Use `sourceOwner` as the only ownership and scoping signal (the `owner` column
+mirrors it). It identifies whose source was queried; it does not prove
 who semantically performed every task mentioned inside. Read the content before
 attributing work. Never infer ownership from an integration display name,
 provider account email, or machine label — those can differ from the
@@ -1126,12 +1151,40 @@ Use `nessie_integration_list` first for incoming shared sources; each root's
 `nessie_integration_list` returns incoming shared roots with provenance fields such
 as `teamId`, `teamName`, `ownerUserId`, `ownerDisplayName`, `ownerEmail`,
 `sharedVia`, `status`, and `platform`. A direct sharer need not appear in
-`nessie_team_list`; use the integration/root `sourceOwner` instead. For a
-collaborator's recent work, identify their shared
-root first, then `nessie_grep` with `owner: { userId: "..." }` plus `parentId`,
-`kind`, `since`, and `until`. Use `owner: { email: "..." }` only when that email
-appears in readable source metadata. Do not use incoming shared roots as the default for
-first-person questions.
+`nessie_team_list`; use the integration/root `sourceOwner` instead.
+Do not use incoming shared roots as the default for first-person questions.
+Trace content always requires its own explicit grant: a context's provenance
+badge is not authority to read the trace it names.
+
+Follow this resolver workflow for teammate questions:
+
+1. Decide whether the user is asking about themself, a named teammate, or a
+   whole shared team. First-person requests stay in the authenticated user's
+   scope.
+2. For a named collaborator, call `nessie_integration_list` before searching;
+   also call `nessie_team_list` when the work is team-derived.
+3. Resolve the source owner ID from the resource `ownerUserId` returned by
+   `nessie_integration_list`. That resolved ID is the input owner selector;
+   returned `sourceOwner` metadata is what you read back to confirm scope.
+4. Choose the shared integration root or source root that matches the request.
+   Use its root `id` as `parentId` when the user names a provider, repository,
+   vault, project, or other source. If the request is broader, search all
+   readable sources for that owner without `parentId`.
+5. Search or browse with `owner: { userId: "..." }`. Add `parentId` for the
+   selected root, `kind` for raw node kinds such as `claude_code_chat` or
+   `codex_chat`, and date-only `since` / `until` plus `timezone` for time
+   windows.
+6. Read the matching sources with `nessie_cat` (or `nessie_tail` for the recent
+   end of a long transcript) before attributing work or answering. Search and
+   list results are routing breadcrumbs, not final evidence.
+
+Use `owner: { email: "..." }` only when that email appears in readable source
+metadata; otherwise email selectors return a clear error instead of silently
+producing zero results. Do not pass raw owner strings such as `"tiger"` or
+objects shaped as `{ ownerUserId: "..." }`; MCP owner objects use `{ userId }`
+or `{ email }`. If a scoped team search is too broad or sparse, narrow with a
+smaller time window, a more specific `parentId`, or a narrower `kind`, then
+retry.
 
 Personal direct grants are not team resources. When the user provides a private
 node link or node ID, read that target directly instead of requiring it to
@@ -1142,17 +1195,24 @@ unsharing it.
 
 ## Dates and timezones
 
-For relative date requests such as "today", "yesterday", or "this week", prefer
-date-only `since` / `until` values plus `timezone` over manually computed ISO
-timestamps. Pass date-only bounds as `yyyy-mm-dd` plus an IANA timezone such as
-`America/Los_Angeles`; the server resolves the user-local start and end of day.
-Exact ISO instants are also accepted. Date-only bounds require `timezone`.
+For relative date requests such as "today", "yesterday", or "this week", pass
+date-only bounds to `nessie_grep` and `nessie_ls` through `since` and `until`
+as `yyyy-mm-dd` values, plus `timezone` as an IANA timezone such as
+`America/Los_Angeles`; the server resolves the user-local start and end of day
+rather than you computing ISO timestamps. Exact ISO instants are also accepted.
+Date-only bounds require `timezone`. Do not treat UTC midnight as the boundary
+for user-local questions. Use the host's user timezone and current date context
+when it exposes them; if it does not expose both reliably, ask the user rather
+than silently falling back to UTC. Treat "this week" and "last week" as the
+user's local Monday-Sunday week unless the user gives a different convention.
 
 ## Resume / takeover
 
 For "Nessie resume", "Nessie takeover", "resume this session", or a pasted
 conversation/node ID, treat resume as search-then-read. With an ID, call
-`nessie_tail` for the recent end and `nessie_head` for the framing beginning.
+`nessie_head` for the beginning (roughly the first 10 lines is enough for
+framing) and `nessie_tail` for the recent tail (bias longer here, roughly the
+last 25 to 50 lines, since the handoff state lives at the end).
 Without an ID, `nessie_grep` with `type: "transcript"`, `initiated: "human"`,
 and the user's clue, choose the matching candidate, then read its head and tail.
 Omit or change the initiation filter only when they explicitly want an agent or
@@ -1184,14 +1244,19 @@ Filesystem write verbs return a CLI-style confirmation line:
   while researching so the context carries provenance badges
 - `nessie_sed` — apply an ordered array of 1–100 `replacements` to one context
   in a single atomic edit; every item has `oldString`, `newString`, and optional
-  `replaceAll`
+  `replaceAll`. Each match must be unique unless that replacement sets
+  `replaceAll`. When one request contains several inline edits to the same
+  context, put them all in one `replacements` array rather than separate calls
 - `nessie_replace_lines` — safely replace a unique block of complete lines with
   `oldLines` / `newLines`; pass `newLines: []` to delete it
-- `nessie_mv` — move (`to`), rename (`name`), set or clear its emoji (`emoji`),
-  or unfile (`unfiled`) a context
+- `nessie_mv` — move (`to`), rename (`name`), or unfile (`unfiled`) a context
+  or folder; it also sets or clears a context emoji (`emoji`)
 - `nessie_rm` — delete a context
 - `nessie_rmdir` — delete an empty folder
 - `nessie_rename_folder` — rename a folder (and optionally set/clear its emoji)
+- `nessie_move_folder` — move a folder into another folder (`to` = parent
+  folder UUID) or to the top level (`unfiled: true`); pass exactly one. A folder
+  cannot be moved into itself or one of its own subfolders
 - `nessie_set_slice_modality` — set or clear an explicitly user-confirmed,
   owner-only correction on a cloud search slice
 - `nessie_delete_conversation` — delete a synced conversation/transcript: removes
@@ -1248,7 +1313,8 @@ conversations/transcripts cannot - they can only be read or, on explicit request
 
 When the user asks for a reusable context, research it with
 `nessie_grep`, read the sources, synthesize the markdown, then `nessie_tee` with
-the source document IDs that informed it.
+the source document IDs that informed it. MCP clients pass the markdown as a
+structured string; do not route large bodies through temporary files.
 
 Keep connector guidance provider-agnostic. Provider lists change over time; the
 important affordance is access to the user's supported AI conversation history,
