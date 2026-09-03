@@ -36,12 +36,12 @@ if not skill_version:
 if "## Skill Updates" not in skill:
     raise SystemExit("skills/nessie/SKILL.md must keep the Skill Updates section")
 for needle in [
-    "## Session Initiation",
+    "## Session initiation",
     "`initiated` is Nessie's derived, provider-neutral category",
     "current listing's direct children",
     'use `initiated: "human"`',
-    "including the virtual Contexts root, reject an initiation filter",
-    "## Native Coding-Agent Memory",
+    "including the virtual Contexts root, reject an\ninitiation filter",
+    "## Native coding-agent memory",
     "`native_memory_collection`",
     "`requiresVerification: true`",
     "older MCP host may reject the `memory` filter",
