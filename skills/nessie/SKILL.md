@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.9
+version: 0.1.10
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -78,7 +78,7 @@ supported AI providers, including chat apps, coding agents, and research tools.
 It can also expose connected source graphs, such as Obsidian vaults with
 folders and notes, or meeting reports organized into source folders, when those
 sources are synced. Its agent surfaces can also report the token-usage
-and skill analytics derived from imported coding sessions.
+analytics derived from imported coding sessions.
 
 ## Default User Experience
 
@@ -900,10 +900,9 @@ the canonical dashboard JSON: current and previous reporting periods,
 per-provider/model request and token counts, integration breakdowns, and trend
 buckets. Input, cache-read, cache-write, output, and reasoning token categories
 remain separate. It defaults to the authenticated user's trailing 30 days in
-UTC day buckets; `hour` granularity is available for single-day questions;
-pass the user's IANA `timezone` when known. `teamId` requires creator/admin
-access to that team and adds per-person breakdowns; `trendUserId` selects one
-team member's trend. Usage is attributed to each imported session's
+UTC day buckets; pass the user's IANA `timezone` when known. `teamId` requires
+creator/admin access to that team and adds per-person breakdowns; `trendUserId`
+selects one team member's trend. Usage is attributed to each imported session's
 creation time rather than the exact time of each model request, and the response
 states that rule in `attribution`.
 
