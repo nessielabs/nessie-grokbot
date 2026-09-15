@@ -1,20 +1,24 @@
 # Contributing
 
 This public repository is the single home for the Grok Bot and Cursor plugin
-packaging. The agent behavior in `skills/nessie/SKILL.md` is maintained
-directly in this repository through normal pull requests. The private
-`nessielabs/nessie-codebase` repository does not export or update this file.
+packaging. The agent behavior in `skills/nessie/SKILL.md` is generated from
+the canonical sources in the private `nessielabs/nessie-codebase` repository
+(`packages/nessie-agent-instructions`: the shared core, the MCP adapter, and
+this host's preamble). A workflow there opens a `skill-sync/canonical` pull
+request here whenever those sources change; `skill-source.json` records the
+exact upstream commit the current skill was generated from.
 
 ## Update the skill
 
-1. Edit `skills/nessie/SKILL.md` directly in a branch in this repository.
-2. Preserve the Grok Bot and Cursor-specific setup, authentication, and update
-   guidance while keeping shared Nessie behavior consistent with the other
-   public skill repositories.
-3. Review `git diff -- skills/nessie/SKILL.md` and run the validation steps in
-   this repository's pull request.
-4. Commit the skill together with any matching plugin documentation. The
-   pre-commit hook applies the required patch-version update automatically.
+1. Do not hand-edit `skills/nessie/SKILL.md`. The next sync would overwrite
+   the change. Edit the canonical sources in `nessie-codebase` instead; the
+   Grok Bot and Cursor-specific setup, authentication, and update guidance
+   live in that repository's Grok Bot preamble.
+2. Review the generated `skill-sync/canonical` pull request, run this
+   repository's validation, and merge it with a merge commit.
+3. The sync injects the `version:` frontmatter from `skill-version.json` and
+   bumps the patch version; the pre-commit hook enforces the same lockstep
+   for any local commit that touches `skills/`.
 
 ## Skill versioning
 
