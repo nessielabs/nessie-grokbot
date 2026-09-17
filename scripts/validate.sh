@@ -2,8 +2,8 @@
 #
 # Validate the skill version lockstep documented in CONTRIBUTING.md: the
 # SKILL.md frontmatter version and the skill-version.json pointer must match,
-# and the pointer must reference the published SKILL.md. The skill is maintained
-# directly in this repository, and this check keeps its release metadata honest.
+# the pointer must reference the published SKILL.md, and a dated changelog entry
+# must describe the current skill version. The skill is generated upstream.
 #
 set -euo pipefail
 
@@ -64,6 +64,18 @@ if pointer.get("version") != skill_version.group(1):
     )
 if pointer.get("skillUrl") != "https://raw.githubusercontent.com/nessielabs/nessie-grokbot/main/skills/nessie/SKILL.md":
     raise SystemExit("skill-version.json skillUrl must point at the published SKILL.md")
+
+changelog_path = root / "CHANGELOG.md"
+if not changelog_path.is_file():
+    raise SystemExit("CHANGELOG.md is required")
+changelog = changelog_path.read_text(encoding="utf-8")
+version = re.escape(pointer["version"])
+entries = re.findall(
+    rf"^## {version} - \d{{4}}-\d{{2}}-\d{{2}}\n(.*?)(?=^## |\Z)",
+    changelog, re.MULTILINE | re.DOTALL,
+)
+if len(entries) != 1 or not re.search(r"^- \S", entries[0], re.MULTILINE):
+    raise SystemExit("CHANGELOG.md must contain exactly one dated entry with a bullet for the current skill version")
 PY
 
 echo "Nessie Grok Bot skill validation passed."

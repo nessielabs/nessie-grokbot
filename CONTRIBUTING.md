@@ -41,8 +41,22 @@ in both files and stages them. To set a version by hand (e.g. a minor bump),
 stage your edited `skill-version.json` in the same commit; the hook then
 leaves both files alone, so set the frontmatter yourself to match.
 
-`scripts/validate.sh` enforces this lockstep (and the presence of the "Skill
-Updates" section) and runs in CI on every push and pull request.
+`scripts/validate.sh` enforces this lockstep, the presence of the "Skill
+Updates" section, and a dated changelog entry for the current skill version.
+It runs in CI on every push and pull request.
+
+## Changelog
+
+The hook prepends a dated `CHANGELOG.md` stub when it bumps the skill version.
+The canonical sync workflow invokes the same hook, so generated sync PRs also
+include an entry. Refine the stub into concise, user-facing bullets before
+pushing. Changelog-only edits do not bump the version.
+
+Keep the format `## X.Y.Z - YYYY-MM-DD` with one bullet per user-visible change.
+For a manual version bump, add the matching entry yourself. Skill versions track
+`skill-version.json`; label independent plugin-manifest releases explicitly as
+`## Plugin X.Y.Z - YYYY-MM-DD`. Backfilled dates are UTC merge dates, not claims
+about marketplace publication. New entries use the UTC date of the change.
 
 ## Secrets
 

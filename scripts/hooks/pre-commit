@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
-# Auto-bump the skill version when shipped skill content changes, keeping the
-# SKILL.md frontmatter and skill-version.json pointer in the lockstep
+# Auto-bump the skill version and add a changelog stub when skill content changes,
+# keeping the SKILL.md frontmatter and skill-version.json pointer in the lockstep
 # scripts/validate.sh enforces. Install with:
 #
 #   git config core.hooksPath scripts/hooks
@@ -30,6 +30,7 @@ fi
 
 python3 - <<'PY'
 import json
+from datetime import datetime, timezone
 import pathlib
 import re
 
@@ -40,6 +41,17 @@ parts = current.split(".")
 parts[-1] = str(int(parts[-1]) + 1)
 new = ".".join(parts)
 
+# Read the changelog before mutating version files so missing history fails early.
+changelog_path = pathlib.Path("CHANGELOG.md")
+changelog = changelog_path.read_text(encoding="utf-8")
+if not re.search(rf"^## {re.escape(new)} - ", changelog, re.MULTILINE):
+    date = datetime.now(timezone.utc).date().isoformat()
+    entry = f"## {new} - {date}\n\n- Skill: update the bundled Nessie guidance.\n\n"
+    first_entry = re.search(r"^## ", changelog, re.MULTILINE)
+    if first_entry is None:
+        raise SystemExit("CHANGELOG.md must contain a release heading")
+    changelog = changelog[:first_entry.start()] + entry + changelog[first_entry.start():]
+
 pointer["version"] = new
 pointer_path.write_text(json.dumps(pointer, indent=2) + "\n", encoding="utf-8")
 
@@ -49,8 +61,9 @@ skill, count = re.subn(r"^version: .*$", f"version: {new}", skill, count=1, flag
 if count != 1:
     raise SystemExit("skills/nessie/SKILL.md must declare version frontmatter")
 skill_path.write_text(skill, encoding="utf-8")
+changelog_path.write_text(changelog, encoding="utf-8")
 
-print(f"Auto-bumped nessie-grokbot skill: {current} -> {new}")
+print(f"Auto-bumped nessie-grokbot skill: {current} -> {new} (refine the CHANGELOG bullet before pushing)")
 PY
 
-git add skill-version.json skills/nessie/SKILL.md
+git add skill-version.json skills/nessie/SKILL.md CHANGELOG.md
