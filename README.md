@@ -4,6 +4,8 @@ Bring your Nessie context library into Grok Bot and Cursor. This plugin connects
 to Nessie's hosted MCP server and teaches the agent how to search, read, and
 safely write context using Nessie's MCP tools.
 
+See [the changelog](CHANGELOG.md) for skill and plugin updates.
+
 ## Requirements
 
 - A Nessie account
