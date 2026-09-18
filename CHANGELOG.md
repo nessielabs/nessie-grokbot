@@ -11,6 +11,10 @@ Intermediate skill versions 0.1.4 and 0.1.7 never reached `main` separately;
 their changes are included in 0.1.5 and 0.1.8. Entries record repository changes,
 not independently verified marketplace publication dates.
 
+## 0.1.14 - 2026-09-18
+
+- Skill: update the bundled Nessie guidance.
+
 ## 0.1.13 - 2026-09-17
 
 - Skill: document imported-email search with `type: "email"`, sender/recipient/subject filters, message and thread reads, and `pageToken` pagination in `nessie_grep`.
