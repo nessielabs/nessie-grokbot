@@ -11,6 +11,10 @@ Intermediate skill versions 0.1.4 and 0.1.7 never reached `main` separately;
 their changes are included in 0.1.5 and 0.1.8. Entries record repository changes,
 not independently verified marketplace publication dates.
 
+## 0.1.16 - 2026-09-22
+
+- Skill: update the bundled Nessie guidance.
+
 ## 0.1.15 - 2026-09-18
 
 - Skill: clarify that new direct sharing grants are limited to owned integration accounts, imported provider-chat sessions, ChatGPT Projects, Nessie contexts, and folders; Outlook threads and Nessie-native chats cannot receive new grants.
