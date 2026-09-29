@@ -11,6 +11,10 @@ Intermediate skill versions 0.1.4 and 0.1.7 never reached `main` separately;
 their changes are included in 0.1.5 and 0.1.8. Entries record repository changes,
 not independently verified marketplace publication dates.
 
+## 0.1.17 - 2026-09-29
+
+- Skill: update the bundled Nessie guidance.
+
 ## 0.1.16 - 2026-09-22
 
 - Skill: document Microsoft Teams as a `messaging` source: teams, channels, threads, and direct or group chats, browsed as a hierarchy with `nessie_ls` and read with `nessie_cat` as sender-attributed messages.
