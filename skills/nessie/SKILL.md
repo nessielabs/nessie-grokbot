@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.18
+version: 0.1.19
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -1216,6 +1216,15 @@ Nessie source owner. The result's message ID reads that message, and its
 thread lists its actual message children. Email reads retain full bodies,
 quoted replies, and available ordered recipient headers. This searches only
 imported mail; it does not query Gmail or Outlook live or retrieve attachments.
+
+To list mail by header without a search query, pass the same filters to
+`nessie_ls` with a mailbox root or an email thread as `parentId`, for example
+`sender` set to the user's own address for every thread they wrote in. A
+mailbox lists the threads holding a matching message, a thread lists its
+matching messages, and `recursive: true` lists the matching messages
+themselves with a `thread` column. The listing is complete and newest first,
+with an exact total; page it with `offset`. The filters cannot be combined
+with `name` or `initiated`.
 
 When the task needs more results, pass the returned `pageToken` to
 `nessie_grep`, keeping all other parameters unchanged. Do not paginate by
