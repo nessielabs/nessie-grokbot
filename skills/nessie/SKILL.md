@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.17
+version: 0.1.18
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -961,6 +961,57 @@ requires creator/admin access to that team and covers only sessions members
 have shared; `sourceKind` narrows to one agent, such as `claude_code_chat` or
 `codex_chat`. Outcomes come from Nessie's per-invocation evaluation, so
 `unknown` means the invocation was not evaluated, not that it failed.
+
+## Skills platform
+
+Nessie's skill platform is its managed library for creating, organizing,
+editing, and installing agent skills. A skill is a collaboratively editable
+package of files with a required root `SKILL.md`; a bundle groups related
+skills, and a skill in a bundle reaches every subscriber of that bundle,
+including Claude Code and Codex on their Macs. Skills and bundles are addressed
+by UUID, not by name. The skill tools return JSON.
+
+When the user asks to create, make, or build a skill without naming another
+destination, create it in the Nessie skill platform with `nessie_skill_create`
+rather than only in this agent's own skills, workflows, or files. Honor an
+explicit destination the user names.
+
+- Browse: `nessie_skill_ls` (top level, or one bundle's children) and
+  `nessie_skill_stat` (owner, access, revision, package state).
+- Create: `nessie_skill_create` writes the root `SKILL.md` from `name`,
+  `description`, and `content`; pass `parent` to create it in a bundle.
+  `nessie_skill_bundle_create` makes a top-level bundle; bundles cannot nest.
+- Edit files: `nessie_skill_file_ls`, `nessie_skill_file_cat` (defaults to
+  `SKILL.md`), `nessie_skill_file_tee` (create or wholly replace),
+  `nessie_skill_file_sed` (exact replacement, unique unless `all`),
+  `nessie_skill_file_mkdir`, `nessie_skill_file_mv`, and
+  `nessie_skill_file_rm` (`recursive` for a non-empty directory). The root
+  `SKILL.md` cannot be moved or deleted. Every write returns the package's
+  `validationStatus`; `invalid` means it cannot be installed until fixed, so
+  read back the changed file and check `nessie_skill_validate` after editing.
+- Organize: `nessie_skill_rename` changes the display name, not the
+  `SKILL.md` frontmatter name agents invoke; `nessie_skill_move` takes exactly
+  one of `to` (a bundle) or `topLevel`. Pass `ifRevision` from
+  `nessie_skill_stat` to refuse overwriting a concurrent change.
+- Remove: `nessie_skill_remove` is destructive for every collaborator, and
+  removing a bundle removes all of its skills. Use it only when the user asked
+  to delete the item: call it without `confirm` to get the preview, show that
+  to the user, and call again with `confirm: true` only after they agree,
+  passing the preview's `revision` as `ifRevision` so a newer version is never
+  deleted unseen.
+- Feedback: when a skill's instructions are incorrect, incomplete, confusing,
+  or impractical, submit Markdown with `nessie_skill_feedback` using the
+  `SKILL.md` frontmatter name. It appears in that skill's analytics.
+
+This connector cannot install into another device. To install or update a
+Nessie managed skill in an agent without a Nessie installer, fetch
+`nessie_skill_installable` and write exactly its files into that agent's own
+skills or workflows location under a folder named after the `SKILL.md`
+frontmatter name; a bundle is installed skill by skill from
+`nessie_skill_ls`. Record each skill's `packageHash` and compare it with
+`nessie_skill_stat` later to find updates. Installing changes the agent's
+behavior, so confirm with the user first. Skill sharing grants and importing
+existing local skills are managed in the Nessie app.
 
 ## Filesystem model
 

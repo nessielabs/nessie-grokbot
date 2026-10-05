@@ -11,6 +11,12 @@ Intermediate skill versions 0.1.4 and 0.1.7 never reached `main` separately;
 their changes are included in 0.1.5 and 0.1.8. Entries record repository changes,
 not independently verified marketplace publication dates.
 
+## 0.1.18 - 2026-10-05
+
+- Skill: add a "Skills platform" section for Nessie's managed skill library on hosted MCP: browse with `nessie_skill_ls` and `nessie_skill_stat`, create skills and bundles with `nessie_skill_create` and `nessie_skill_bundle_create`, edit package files with the `nessie_skill_file_*` tools, and check `nessie_skill_validate` after editing.
+- Skill: route requests to create a skill to the Nessie skill platform unless the user names another destination, and document rename, move, feedback, and the two-step `nessie_skill_remove` preview that passes the preview's `revision` as `ifRevision`.
+- Skill: explain how to install or update a managed skill in an agent that has no Nessie installer, using `nessie_skill_installable` and `packageHash`, after confirming with the user.
+
 ## 0.1.17 - 2026-09-29
 
 - Skill: document the provider-neutral `document` group: files from a selected local folder and from a connected SharePoint document library share one shape (folders of extracted-text files), browsed with `nessie_ls` `sourceType: "document"` and searched with `nessie_grep` `type: "document"`.
