@@ -11,6 +11,10 @@ Intermediate skill versions 0.1.4 and 0.1.7 never reached `main` separately;
 their changes are included in 0.1.5 and 0.1.8. Entries record repository changes,
 not independently verified marketplace publication dates.
 
+## 0.1.18 - 2026-10-05
+
+- Skill: update the bundled Nessie guidance.
+
 ## 0.1.17 - 2026-09-29
 
 - Skill: document the provider-neutral `document` group: files from a selected local folder and from a connected SharePoint document library share one shape (folders of extracted-text files), browsed with `nessie_ls` `sourceType: "document"` and searched with `nessie_grep` `type: "document"`.
