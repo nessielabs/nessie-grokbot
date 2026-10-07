@@ -11,6 +11,10 @@ Intermediate skill versions 0.1.4 and 0.1.7 never reached `main` separately;
 their changes are included in 0.1.5 and 0.1.8. Entries record repository changes,
 not independently verified marketplace publication dates.
 
+## 0.1.20 - 2026-10-07
+
+- Skill: update the bundled Nessie guidance.
+
 ## 0.1.19 - 2026-10-05
 
 - Skill: document email header filters on `nessie_ls`: pass `sender`, `recipient`, `to`, `cc`, `bcc`, or `subject` with a mailbox root or an email thread as `parentId` to list mail without a search query, for example every thread the user wrote in.
