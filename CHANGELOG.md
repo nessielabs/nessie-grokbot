@@ -11,6 +11,10 @@ Intermediate skill versions 0.1.4 and 0.1.7 never reached `main` separately;
 their changes are included in 0.1.5 and 0.1.8. Entries record repository changes,
 not independently verified marketplace publication dates.
 
+## 0.1.22 - 2026-10-10
+
+- Skill: update the bundled Nessie guidance.
+
 ## 0.1.21 - 2026-10-08
 
 - Skill: list skills and skill bundles among the nodes `nessie_sharing_add` can share, passing the UUID from `nessie_skill_ls`. Skill sharing is no longer described as managed only in the Nessie app; only the owner can manage a skill's or bundle's grants.
