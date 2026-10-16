@@ -1,7 +1,7 @@
 ---
 name: nessie
 description: Search and read the user's Nessie context library through hosted MCP. Use when they ask about prior work, decisions, projects, notes, AI conversations, teammates, or saved context.
-version: 0.1.21
+version: 0.1.22
 ---
 
 # Nessie for Cursor and Grok Bot
@@ -970,6 +970,21 @@ have shared; `sourceKind` narrows to one agent, such as `claude_code_chat` or
 `codex_chat`. Outcomes come from Nessie's per-invocation evaluation, so
 `unknown` means the invocation was not evaluated, not that it failed.
 
+## Skill suggestions
+
+Nessie periodically reads the user's sessions and proposes skill changes.
+`nessie_skill_suggestion_ls` lists them, each with an `id` and a `kind`:
+`update` (a proposed edit to a skill the user owns) or `create` (a proposed
+new skill). `nessie_skill_suggestion_show` returns an edit's current and
+proposed `SKILL.md`, or a new skill's proposed instructions. When the user asks
+what to improve in their skills, read both sides: the skill analytics tools
+show which skills fail and why, and the suggestions show the fixes Nessie
+already proposed. Review an edit with the user before
+`nessie_skill_suggestion_apply`, which replaces the skill's `SKILL.md`,
+refuses when the skill changed since the suggestion, and can be undone from
+revision history. Accept a `create` suggestion with `nessie_skill_create` once
+the user agrees.
+
 ## Skills platform
 
 Nessie's skill platform is its managed library for creating, organizing,
@@ -989,6 +1004,13 @@ explicit destination the user names.
 - Create: `nessie_skill_create` writes the root `SKILL.md` from `name`,
   `description`, and `content`; pass `parent` to create it in a bundle.
   `nessie_skill_bundle_create` makes a top-level bundle; bundles cannot nest.
+- Import: when the skill already exists in the user's `~/.claude/skills` or
+  `~/.codex/skills` and you can read those files, call `nessie_skill_import`
+  with `agent`, the directory `name`, and every text file unchanged, instead
+  of recreating the skill with `nessie_skill_create`. The import carries the
+  identity the Nessie app uses, so the app links that directory as the
+  skill's installed copy on its next scan. A recreated skill would leave the
+  directory unmanaged and offered for import as a duplicate.
 - Edit files: `nessie_skill_file_ls`, `nessie_skill_file_cat` (defaults to
   `SKILL.md`), `nessie_skill_file_tee` (create or wholly replace),
   `nessie_skill_file_sed` (exact replacement, unique unless `all`),
@@ -1020,8 +1042,9 @@ frontmatter name; a bundle is installed skill by skill from
 `nessie_skill_stat` later to find updates. Installing changes the agent's
 behavior, so confirm with the user first. Share a skill or bundle with
 `nessie_sharing_add`, passing its UUID from `nessie_skill_ls`; only the owner
-can manage its grants. Importing existing local skills is managed in the
-Nessie app.
+can manage its grants. This connector cannot read the user's disk, so
+`nessie_skill_import` imports only the files you pass; plugin skills and
+whole folders import from the Nessie app.
 
 ## Filesystem model
 
